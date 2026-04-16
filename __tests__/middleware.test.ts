@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { middleware } from '@/proxy'
+import { middleware } from '@/middleware'
 import { NextRequest } from 'next/server'
 
 function makeRequest(pathname: string, sessionCookie?: string): NextRequest {
@@ -45,6 +45,18 @@ describe('middleware', () => {
 
   it('passes through API auth routes without redirect', () => {
     const res = middleware(makeRequest('/api/auth/login'))
+    expect(res.status).toBe(200)
+  })
+
+  it('allows authenticated admin to reach /api/auth/logout', () => {
+    const req = makeRequest('/api/auth/logout', 'admin')
+    const res = middleware(req)
+    expect(res.status).toBe(200)
+  })
+
+  it('allows authenticated employee to reach /api/auth/logout', () => {
+    const req = makeRequest('/api/auth/logout', 'employee')
+    const res = middleware(req)
     expect(res.status).toBe(200)
   })
 })
