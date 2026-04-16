@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyPassword, SESSION_COOKIE_NAME, cookieOptions } from '@/lib/auth'
+import { verifyPassword, SESSION_COOKIE_NAME, cookieOptions, createSessionValue } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     const response = NextResponse.json({ role, success: true })
-    response.cookies.set(SESSION_COOKIE_NAME, role, cookieOptions)
+    response.cookies.set(SESSION_COOKIE_NAME, createSessionValue(role), cookieOptions)
     return response
   } catch {
     return NextResponse.json({ error: 'Грешка при влизане' }, { status: 500 })

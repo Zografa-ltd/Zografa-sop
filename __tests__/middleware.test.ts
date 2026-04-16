@@ -3,11 +3,12 @@
  */
 import { middleware } from '@/middleware'
 import { NextRequest } from 'next/server'
+import { createSessionValue } from '@/lib/auth'
 
-function makeRequest(pathname: string, sessionCookie?: string): NextRequest {
+function makeRequest(pathname: string, role?: 'employee' | 'admin'): NextRequest {
   const req = new NextRequest(new URL(`http://localhost:3000${pathname}`))
-  if (sessionCookie) {
-    req.cookies.set('zografa-sop-session', sessionCookie)
+  if (role) {
+    req.cookies.set('zografa-sop-session', createSessionValue(role))
   }
   return req
 }

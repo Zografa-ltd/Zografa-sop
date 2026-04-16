@@ -29,11 +29,13 @@ function LoginForm() {
         return
       }
 
-      const redirect = searchParams.get('redirect')
+      const redirectTo = searchParams.get('redirect')
+      const safeRedirect = redirectTo && redirectTo.startsWith('/') && !redirectTo.startsWith('//') ? redirectTo : null
+
       if (data.role === 'admin') {
-        router.push(redirect?.startsWith('/admin') ? redirect : '/admin')
+        router.push(safeRedirect?.startsWith('/admin') ? safeRedirect : '/admin')
       } else {
-        router.push(redirect && !redirect.startsWith('/admin') ? redirect : '/')
+        router.push(safeRedirect && !safeRedirect.startsWith('/admin') ? safeRedirect : '/')
       }
     } catch {
       setError('Мрежова грешка. Опитай отново.')

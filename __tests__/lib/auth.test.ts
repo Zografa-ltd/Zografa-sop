@@ -1,4 +1,4 @@
-import { verifyPassword, getSessionRole, SESSION_COOKIE_NAME } from '@/lib/auth'
+import { verifyPassword, getSessionRole, SESSION_COOKIE_NAME, createSessionValue } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
 
 // Generate a real hash for testing
@@ -39,22 +39,30 @@ describe('verifyPassword', () => {
 })
 
 describe('getSessionRole', () => {
-  it('returns null for undefined', () => {
+  it('returns null when no cookie', () => {
     expect(getSessionRole(undefined)).toBeNull()
   })
 
-  it('returns employee for "employee"', () => {
-    expect(getSessionRole('employee')).toBe('employee')
+  it('returns employee role for valid signed employee token', () => {
+    const value = createSessionValue('employee')
+    expect(getSessionRole(value)).toBe('employee')
   })
 
-  it('returns admin for "admin"', () => {
-    expect(getSessionRole('admin')).toBe('admin')
+  it('returns admin role for valid signed admin token', () => {
+    const value = createSessionValue('admin')
+    expect(getSessionRole(value)).toBe('admin')
   })
 
-  it('returns null for invalid values', () => {
+  it('returns null for unsigned plain string', () => {
+    expect(getSessionRole('employee')).toBeNull()
+  })
+
+  it('returns null for forged admin token', () => {
+    expect(getSessionRole('admin.0000000000000000')).toBeNull()
+  })
+
+  it('returns null for invalid token', () => {
     expect(getSessionRole('hacker')).toBeNull()
-    expect(getSessionRole('')).toBeNull()
-    expect(getSessionRole('ADMIN')).toBeNull()
   })
 })
 
