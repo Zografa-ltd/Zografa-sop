@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SESSION_COOKIE_NAME, getSessionRole } from '@/lib/auth'
 
-export function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value
-  const role = getSessionRole(sessionCookie)
+  const role = await getSessionRole(sessionCookie)
 
   // API auth routes — always allow through, no redirects
   if (pathname.startsWith('/api/auth')) {

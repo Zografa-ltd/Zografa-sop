@@ -1,24 +1,36 @@
 import bcrypt from 'bcryptjs'
-import { createHmac } from 'crypto'
 
 export const SESSION_COOKIE_NAME = 'zografa-sop-session'
 export const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
 
 export type UserRole = 'employee' | 'admin'
 
-function signRole(role: UserRole): string {
+async function signRole(role: UserRole): Promise<string> {
   const secret = process.env.COOKIE_SECRET || 'dev-secret-change-in-production'
-  const sig = createHmac('sha256', secret).update(role).digest('hex').slice(0, 16)
-  return `${role}.${sig}`
+  const enc = new TextEncoder()
+  const key = await globalThis.crypto.subtle.importKey(
+    'raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  )
+  const sig = await globalThis.crypto.subtle.sign('HMAC', key, enc.encode(role))
+  const hex = Array.from(new Uint8Array(sig))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+    .slice(0, 16)
+  return `${role}.${hex}`
 }
 
-function verifySignedRole(value: string): UserRole | null {
-  const parts = value.split('.')
+export async function createSessionValue(role: UserRole): Promise<string> {
+  return signRole(role)
+}
+
+export async function getSessionRole(cookieValue: string | undefined): Promise<UserRole | null> {
+  if (!cookieValue) return null
+  const parts = cookieValue.split('.')
   if (parts.length !== 2) return null
   const role = parts[0] as UserRole
   if (role !== 'employee' && role !== 'admin') return null
-  const expected = signRole(role)
-  if (value !== expected) return null
+  const expected = await signRole(role)
+  if (cookieValue !== expected) return null
   return role
 }
 
@@ -34,15 +46,6 @@ export async function verifyPassword(password: string): Promise<UserRole | null>
   if (isAdmin) return 'admin'
   if (isEmployee) return 'employee'
   return null
-}
-
-export function getSessionRole(cookieValue: string | undefined): UserRole | null {
-  if (!cookieValue) return null
-  return verifySignedRole(cookieValue)
-}
-
-export function createSessionValue(role: UserRole): string {
-  return signRole(role)
 }
 
 export const cookieOptions = {
