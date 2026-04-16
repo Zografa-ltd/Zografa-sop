@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { middleware } from '@/middleware'
+import { middleware } from '@/proxy'
 import { NextRequest } from 'next/server'
 
 function makeRequest(pathname: string, sessionCookie?: string): NextRequest {
