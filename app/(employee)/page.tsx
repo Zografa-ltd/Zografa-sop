@@ -37,7 +37,6 @@ export default async function EmployeeHomePage() {
     department_name: doc.departments?.display_name ?? '',
   }))
 
-  // Map departments to the { id, name } shape expected by DocumentLibrary
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const deptList = (departments ?? []).map((d: any) => ({
     id: d.id,
@@ -45,11 +44,29 @@ export default async function EmployeeHomePage() {
   }))
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="font-serif text-3xl font-bold text-gray-900">Документи</h1>
-        <p className="mt-1 text-gray-500">Процеси, форми и шаблони на Зографа</p>
+    <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      {/* Page header */}
+      <div className="mb-10 border-b border-gray-200 pb-8">
+        <h1 className="font-serif text-4xl font-bold text-gray-900 tracking-tight">
+          Документи
+        </h1>
+        <p className="mt-2 text-base text-gray-500">
+          Процеси, форми и шаблони на Зографа
+        </p>
+
+        {/* Stats row */}
+        <div className="mt-6 flex gap-6">
+          <div className="text-center">
+            <span className="block text-2xl font-bold text-indigo-600">{documents.length}</span>
+            <span className="text-xs text-gray-400 uppercase tracking-wide">Документа</span>
+          </div>
+          <div className="text-center">
+            <span className="block text-2xl font-bold text-indigo-600">{deptList.length}</span>
+            <span className="text-xs text-gray-400 uppercase tracking-wide">Отдела</span>
+          </div>
+        </div>
       </div>
+
       <DocumentLibrary
         departments={deptList}
         initialDocuments={documents}

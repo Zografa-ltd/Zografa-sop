@@ -1,21 +1,18 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-@layer base {
-  :root {
-    --font-serif: 'Lora', Georgia, serif;
-    --font-sans: 'Inter', system-ui, sans-serif;
-  }
+/* Wire next/font CSS variables into Tailwind's font-sans / font-serif utilities */
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+}
 
+@layer base {
   body {
     font-family: var(--font-sans);
     background-color: #f9fafb;
     color: #111827;
     -webkit-font-smoothing: antialiased;
-  }
-
-  .prose-doc {
-    font-family: var(--font-serif);
   }
 }
 
@@ -23,7 +20,6 @@
    PRINT STYLES — Employee Document Viewer
    ============================================================ */
 @media print {
-  /* Hide all interactive chrome */
   header,
   nav,
   aside,
@@ -34,21 +30,18 @@
     display: none !important;
   }
 
-  /* Reset page background */
   body {
     background: white;
     color: black;
-    font-family: 'Lora', Georgia, serif;
+    font-family: var(--font-serif, 'Lora', Georgia, serif);
   }
 
-  /* Document body: full width, readable font size */
   article.prose {
     max-width: 100% !important;
     font-size: 11pt;
     line-height: 1.6;
   }
 
-  /* Headings */
   article.prose h1,
   article.prose h2,
   article.prose h3 {
@@ -56,7 +49,6 @@
     color: black;
   }
 
-  /* Tables: full width, borders visible */
   article.prose table {
     width: 100%;
     border-collapse: collapse;
@@ -69,24 +61,20 @@
     padding: 4px 8px;
   }
 
-  /* Page breaks */
   article.prose h2 {
     page-break-before: auto;
   }
 
-  /* Show print-only header */
   .print\:block {
     display: block !important;
   }
 
-  /* Links: show URL in parentheses */
   a[href^="http"]::after {
     content: " (" attr(href) ")";
     font-size: 9pt;
     color: #555;
   }
 
-  /* Margin for printing */
   @page {
     margin: 2cm;
   }

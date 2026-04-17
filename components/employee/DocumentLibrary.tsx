@@ -76,9 +76,24 @@ export function DocumentLibrary({ departments, initialDocuments }: DocumentLibra
 
       {/* Document grid */}
       {filtered.length === 0 ? (
-        <div className="py-20 text-center text-gray-400">
-          <p className="text-lg">Няма намерени документи</p>
-          <p className="text-sm mt-1">Опитайте с друго търсене или изберете различен отдел.</p>
+        <div className="py-24 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+            <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          {initialDocuments.length === 0 ? (
+            <>
+              <p className="text-base font-medium text-gray-700">Все още няма публикувани документи</p>
+              <p className="mt-1 text-sm text-gray-400">Администраторът може да добави документи от административния панел.</p>
+            </>
+          ) : (
+            <>
+              <p className="text-base font-medium text-gray-700">Няма намерени документи</p>
+              <p className="mt-1 text-sm text-gray-400">Опитайте с друго търсене или изберете различен отдел.</p>
+            </>
+          )}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
