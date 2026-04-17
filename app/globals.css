@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @layer base {
   :root {
@@ -15,5 +16,78 @@
 
   .prose-doc {
     font-family: var(--font-serif);
+  }
+}
+
+/* ============================================================
+   PRINT STYLES — Employee Document Viewer
+   ============================================================ */
+@media print {
+  /* Hide all interactive chrome */
+  header,
+  nav,
+  aside,
+  footer,
+  .print\:hidden,
+  [aria-label="Навигация"],
+  [aria-label="Съдържание"] {
+    display: none !important;
+  }
+
+  /* Reset page background */
+  body {
+    background: white;
+    color: black;
+    font-family: 'Lora', Georgia, serif;
+  }
+
+  /* Document body: full width, readable font size */
+  article.prose {
+    max-width: 100% !important;
+    font-size: 11pt;
+    line-height: 1.6;
+  }
+
+  /* Headings */
+  article.prose h1,
+  article.prose h2,
+  article.prose h3 {
+    page-break-after: avoid;
+    color: black;
+  }
+
+  /* Tables: full width, borders visible */
+  article.prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10pt;
+  }
+
+  article.prose th,
+  article.prose td {
+    border: 1px solid #999;
+    padding: 4px 8px;
+  }
+
+  /* Page breaks */
+  article.prose h2 {
+    page-break-before: auto;
+  }
+
+  /* Show print-only header */
+  .print\:block {
+    display: block !important;
+  }
+
+  /* Links: show URL in parentheses */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #555;
+  }
+
+  /* Margin for printing */
+  @page {
+    margin: 2cm;
   }
 }
