@@ -67,6 +67,16 @@ CREATE TRIGGER documents_updated_at
   BEFORE UPDATE ON documents
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+-- Product models (sub-category within a department — e.g. Рекламни стелажи, Магазинни стелажи)
+CREATE TABLE IF NOT EXISTS product_models (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  department_id uuid NOT NULL REFERENCES departments(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  code text NOT NULL UNIQUE,
+  sort_order integer DEFAULT 0,
+  created_at timestamptz DEFAULT now()
+);
+
 -- Seed initial departments
 INSERT INTO departments (code, display_name, description, sort_order) VALUES
   ('SALE', 'Продажби',         'Търговски процеси и запитвания', 1),
@@ -75,4 +85,18 @@ INSERT INTO departments (code, display_name, description, sort_order) VALUES
   ('PROD', 'Производство',     'Производствени процеси',         4),
   ('HR',   'Човешки ресурси',  'HR процеси',                     5),
   ('FIN',  'Финанси',          'Финансови процеси',              6)
+ON CONFLICT (code) DO NOTHING;
+
+-- Seed product models
+INSERT INTO product_models (department_id, name, code, sort_order)
+SELECT d.id, 'Рекламни стелажи', 'SALE_REK', 1 FROM departments d WHERE d.code = 'SALE'
+ON CONFLICT (code) DO NOTHING;
+INSERT INTO product_models (department_id, name, code, sort_order)
+SELECT d.id, 'Магазинни стелажи', 'SALE_MAG', 2 FROM departments d WHERE d.code = 'SALE'
+ON CONFLICT (code) DO NOTHING;
+INSERT INTO product_models (department_id, name, code, sort_order)
+SELECT d.id, 'Доставка и монтаж', 'LOG_DOM', 1 FROM departments d WHERE d.code = 'LOG'
+ON CONFLICT (code) DO NOTHING;
+INSERT INTO product_models (department_id, name, code, sort_order)
+SELECT d.id, 'Рекламации', 'REK_GEN', 1 FROM departments d WHERE d.code = 'REK'
 ON CONFLICT (code) DO NOTHING;

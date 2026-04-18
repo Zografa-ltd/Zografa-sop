@@ -7,6 +7,15 @@ export interface DocumentSummary {
   department_name: string
   document_type: DocumentType
   updated_at: string
+  product_model_id?: string | null
+}
+
+export interface ProductModel {
+  id: string
+  department_id: string
+  name: string
+  code: string
+  sort_order: number
 }
 
 export interface DocumentFull extends DocumentSummary {
@@ -27,6 +36,7 @@ export interface Department {
 
 export interface SidebarData {
   departments: Department[]
+  productModels: ProductModel[]
   documents: DocumentSummary[]
 }
 

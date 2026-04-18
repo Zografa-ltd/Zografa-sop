@@ -6,27 +6,30 @@ import { createSupabaseServerClient } from '@/lib/supabase'
 export const dynamic = 'force-dynamic'
 
 interface PageProps {
-  searchParams: Promise<{ dept?: string; type?: string }>
+  searchParams: Promise<{ dept?: string; model?: string; type?: string }>
 }
 
 export default async function EmployeeHomePage({ searchParams }: PageProps) {
-  const { dept, type } = await searchParams
-  const { departments, documents } = await getSidebarData()
+  const { dept, model, type } = await searchParams
+  const { departments, productModels, documents } = await getSidebarData()
 
-  // Group view: a specific document type for a specific department
+  // Group view: specific type for a dept (+ optional model filter)
   if (dept && type) {
     const deptObj = departments.find((d) => d.id === dept)
     const deptName = deptObj?.name ?? ''
 
-    // Fetch full content for these documents
     const supabase = await createSupabaseServerClient()
-    const { data: rawDocs } = await supabase
+    const query = supabase
       .from('documents')
-      .select('id, title, type, updated_at, department_id, content_md, content_html')
+      .select('id, title, type, updated_at, department_id, product_model_id, content_md, content_html')
       .eq('status', 'published')
       .eq('department_id', dept)
       .eq('type', type)
       .order('title')
+
+    if (model) query.eq('product_model_id', model)
+
+    const { data: rawDocs } = await query
 
     const groupDocs = (rawDocs ?? []).map((doc: any) => ({
       id: doc.id,
@@ -37,18 +40,20 @@ export default async function EmployeeHomePage({ searchParams }: PageProps) {
       content_html: doc.content_html ?? null,
     }))
 
+    const modelObj = model ? productModels.find((m) => m.id === model) : null
+
     return (
       <div className="px-8 py-8 max-w-5xl mx-auto">
         <DocumentGroupView
           documents={groupDocs}
-          deptName={deptName}
+          deptName={modelObj ? `${deptName} — ${modelObj.name}` : deptName}
           type={type}
         />
       </div>
     )
   }
 
-  // Dept overview: filter docs but show full homepage card for that dept
+  // Dept overview: show dept card (filtered to one dept)
   if (dept) {
     const deptDocs = documents.filter((d) => d.department_id === dept)
     const deptObj = departments.find((d) => d.id === dept)
@@ -62,7 +67,11 @@ export default async function EmployeeHomePage({ searchParams }: PageProps) {
           </p>
           <h1 className="text-xl font-semibold text-[#1A1A1A]">{deptObj?.name}</h1>
         </div>
-        <HomepageGrid departments={filteredDepts} documents={deptDocs} />
+        <HomepageGrid
+          departments={filteredDepts}
+          productModels={productModels}
+          documents={deptDocs}
+        />
       </div>
     )
   }
@@ -83,7 +92,11 @@ export default async function EmployeeHomePage({ searchParams }: PageProps) {
         </p>
       </div>
 
-      <HomepageGrid departments={activeDepts} documents={documents} />
+      <HomepageGrid
+        departments={activeDepts}
+        productModels={productModels}
+        documents={documents}
+      />
     </div>
   )
 }

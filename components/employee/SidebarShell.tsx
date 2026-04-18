@@ -38,6 +38,7 @@ export function SidebarShell({ sidebarData, children }: SidebarShellProps) {
         {/* Sidebar — independent scroll */}
         <Sidebar
           departments={sidebarData.departments}
+          productModels={sidebarData.productModels}
           documents={sidebarData.documents}
           isMobileOpen={mobileOpen}
           onMobileClose={() => setMobileOpen(false)}
