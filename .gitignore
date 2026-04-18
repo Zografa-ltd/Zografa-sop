@@ -46,3 +46,4 @@ supabase/.temp/
 
 # Claude settings
 .claude/
+e2e/screenshots/
