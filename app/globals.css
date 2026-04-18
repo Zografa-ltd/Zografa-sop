@@ -1,28 +1,124 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* Wire next/font CSS variables into Tailwind's font-sans / font-serif utilities */
 @theme inline {
   --font-sans: var(--font-sans);
-  --font-serif: var(--font-serif);
+
+  --color-z-dark:    #1A1A1A;
+  --color-z-red:     #C41E2A;
+  --color-z-red-d:   #A5181F;
+  --color-z-bg:      #F7F6F4;
+  --color-z-surface: #FFFFFF;
+  --color-z-border:  #E4E1DB;
+  --color-z-muted:   #6B6660;
+  --color-z-subtle:  #F0EDE8;
 }
 
 @layer base {
   body {
     font-family: var(--font-sans);
-    background-color: #f9fafb;
-    color: #111827;
+    background-color: #F7F6F4;
+    color: #1A1A1A;
     -webkit-font-smoothing: antialiased;
+    font-size: 15px;
   }
 }
 
 /* ============================================================
-   PRINT STYLES — Employee Document Viewer
+   PROSE — hide <hr> that immediately precedes an <h2>
+   H2 already has border-t, so the --- in markdown creates a double line
+   ============================================================ */
+.prose hr:has(+ h2) { display: none; }
+
+/* ============================================================
+   FORM FILL FIELDS — rendered from ___ patterns via transformFormFields()
+   ============================================================ */
+.ff-row {
+  display: flex;
+  gap: 16px;
+  margin: 8px 0 2px;
+}
+.ff {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  border-bottom: 1px solid #C8C3BD;
+  padding-bottom: 4px;
+  min-height: 28px;
+}
+.ff-label {
+  font-size: 13.5px;
+  color: #1A1A1A;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.3;
+}
+.ff-label strong { font-weight: 600; }
+.ff-fill { flex: 1; min-width: 8px; }
+.ff-suffix {
+  font-size: 13.5px;
+  color: #6B6660;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   MAMMOTH FORM — HTML форми от AI агент (docx → HTML)
+   Класове: mf-* — само шрифтове и цветове от приложението.
+   Структура, разстояния и линии се взимат от Word.
+   ============================================================ */
+.mammoth-form {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1A1A1A;
+}
+
+.mammoth-form p { margin: 0; }
+.mammoth-form strong, .mammoth-form b { font-weight: 600; }
+
+/* Tables — layout only, no added borders */
+.mammoth-form table { width: 100%; border-collapse: collapse; }
+.mammoth-form table td { border: none; vertical-align: top; }
+
+/* Section headers — bold text, no extra borders or backgrounds */
+.mammoth-form p.mf-section-header strong {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #1A1A1A;
+  text-transform: uppercase;
+}
+
+/* Fill lines — from Word (w:pBdr), app color only */
+.mammoth-form .mf-line {
+  border-bottom: 1px solid #C8C3BD;
+}
+
+/* ── Print ── */
+@media print {
+  .mammoth-form { font-size: 9pt; line-height: 1.3; }
+  .mammoth-form p.mf-section-header strong { font-size: 8.5pt; }
+  .mammoth-form .mf-line { border-bottom-color: #999; }
+}
+
+/* ============================================================
+   SIDEBAR STYLES
+   ============================================================ */
+.sidebar-nav::-webkit-scrollbar { width: 3px; }
+.sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: #E4E1DB; border-radius: 2px; }
+.sidebar-nav { scrollbar-width: thin; scrollbar-color: #E4E1DB transparent; }
+
+/* ============================================================
+   PRINT STYLES — compact, max 2 pages, with Zografa logo
    ============================================================ */
 @media print {
   header,
   nav,
   aside,
+  aside[data-sidebar],
+  header[data-mobile-header],
   footer,
   .print\:hidden,
   [aria-label="Навигация"],
@@ -32,50 +128,98 @@
 
   body {
     background: white;
-    color: black;
-    font-family: var(--font-serif, 'Lora', Georgia, serif);
+    color: #000;
+    font-family: var(--font-sans), Arial, sans-serif;
+    font-size: 9pt;
+    line-height: 1.35;
   }
 
+  /* Zografa print header */
+  .print-logo-header {
+    display: flex !important;
+    align-items: center;
+    gap: 10pt;
+    border-bottom: 1.5pt solid #C41E2A;
+    padding-bottom: 6pt;
+    margin-bottom: 10pt;
+  }
+
+  .print-logo-header img {
+    height: 28pt;
+    width: auto;
+  }
+
+  .print-logo-header .print-doc-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #000;
+  }
+
+  .print-logo-header .print-doc-meta {
+    font-size: 7.5pt;
+    color: #555;
+  }
+
+  /* Prose overrides for print */
   article.prose {
     max-width: 100% !important;
-    font-size: 11pt;
-    line-height: 1.6;
+    font-size: 9pt !important;
+    line-height: 1.35 !important;
   }
 
-  article.prose h1,
-  article.prose h2,
-  article.prose h3 {
-    page-break-after: avoid;
-    color: black;
-  }
+  article.prose h1 { font-size: 12pt !important; margin: 6pt 0 4pt !important; }
+  article.prose h2 { font-size: 10pt !important; margin: 6pt 0 3pt !important; page-break-after: avoid; }
+  article.prose h3 { font-size: 9.5pt !important; margin: 5pt 0 2pt !important; page-break-after: avoid; }
+
+  article.prose p  { margin: 2pt 0 !important; }
+  article.prose ul,
+  article.prose ol { margin: 2pt 0 !important; padding-left: 14pt !important; }
+  article.prose li { margin: 1pt 0 !important; }
 
   article.prose table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 10pt;
+    font-size: 8pt;
+    margin: 4pt 0 !important;
   }
 
   article.prose th,
   article.prose td {
-    border: 1px solid #999;
-    padding: 4px 8px;
+    border: 0.5pt solid #999;
+    padding: 2pt 5pt;
   }
 
-  article.prose h2 {
-    page-break-before: auto;
+  article.prose th { background: #f0f0f0; font-weight: 600; }
+
+  article.prose h2 { page-break-before: auto; }
+
+  /* Compact form fields for questionnaires */
+  article.prose hr {
+    margin: 4pt 0 !important;
+    border-color: #ddd;
   }
 
-  .print\:block {
-    display: block !important;
+  article.prose strong { font-weight: 600; }
+
+  /* Hide version history on print */
+  article.prose h2[id="версионна-история"],
+  article.prose h2[id*="версия"] {
+    display: none !important;
+  }
+  article.prose h2[id="версионна-история"] ~ *,
+  article.prose h2[id*="версия"] ~ * {
+    display: none !important;
   }
 
-  a[href^="http"]::after {
-    content: " (" attr(href) ")";
-    font-size: 9pt;
-    color: #555;
-  }
+  .print\:block { display: block !important; }
+
+  /* Form fill fields — print */
+  .ff-row { gap: 10pt; margin: 3pt 0 1pt; }
+  .ff { border-bottom: 0.5pt solid #333; min-height: 14pt; padding-bottom: 2pt; }
+  .ff-label, .ff-suffix { font-size: 8.5pt; }
 
   @page {
-    margin: 2cm;
+    margin: 1.2cm 1.5cm;
+    size: A4;
   }
 }

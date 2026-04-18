@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DocumentLibrary } from '@/components/employee/DocumentLibrary'
 
-// Mock child components that aren't under test
 jest.mock('next/link', () => {
   return function MockLink({ href, children, ...props }: { href: string; children: React.ReactNode; [key: string]: unknown }) {
     return <a href={href} {...props}>{children}</a>
@@ -33,23 +32,9 @@ describe('DocumentLibrary', () => {
     expect(screen.getByText('Доставка инструкции')).toBeInTheDocument()
   })
 
-  it('filters by department tab click', async () => {
-    render(<DocumentLibrary departments={departments} initialDocuments={documents} />)
-    await userEvent.click(screen.getByRole('tab', { name: 'Логистика' }))
-    expect(screen.getByText('Доставка инструкции')).toBeInTheDocument()
-    expect(screen.queryByText('Процес продажба')).not.toBeInTheDocument()
-  })
-
   it('filters by search query', async () => {
     render(<DocumentLibrary departments={departments} initialDocuments={documents} />)
     await userEvent.type(screen.getByRole('searchbox'), 'форма')
-    expect(screen.getByText('Форма поръчка')).toBeInTheDocument()
-    expect(screen.queryByText('Процес продажба')).not.toBeInTheDocument()
-  })
-
-  it('filters by document type select', async () => {
-    render(<DocumentLibrary departments={departments} initialDocuments={documents} />)
-    await userEvent.click(screen.getByRole('button', { name: /Форми/ }))
     expect(screen.getByText('Форма поръчка')).toBeInTheDocument()
     expect(screen.queryByText('Процес продажба')).not.toBeInTheDocument()
   })

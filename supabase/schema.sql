@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS documents (
   current_version text NOT NULL DEFAULT '1.0',
   status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'under_review', 'published', 'archived')),
   content_md text NOT NULL DEFAULT '',
+  content_html text,                    -- HTML от AI агент (mammoth) — само за type='form'
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );

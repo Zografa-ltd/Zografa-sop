@@ -1,76 +1,89 @@
+import { getSidebarData } from '@/lib/server-data'
+import { HomepageGrid } from '@/components/employee/HomepageGrid'
+import { DocumentGroupView } from '@/components/employee/DocumentGroupView'
 import { createSupabaseServerClient } from '@/lib/supabase'
-import { DocumentLibrary } from '@/components/employee/DocumentLibrary'
-import { DocumentSummary } from '@/lib/documents'
 
 export const dynamic = 'force-dynamic'
 
-export default async function EmployeeHomePage() {
-  const supabase = await createSupabaseServerClient()
+interface PageProps {
+  searchParams: Promise<{ dept?: string; type?: string }>
+}
 
-  // Fetch departments
-  const { data: departments } = await supabase
-    .from('departments')
-    .select('id, display_name')
-    .order('sort_order')
+export default async function EmployeeHomePage({ searchParams }: PageProps) {
+  const { dept, type } = await searchParams
+  const { departments, documents } = await getSidebarData()
 
-  // Fetch all published documents with department names
-  const { data: rawDocs } = await supabase
-    .from('documents')
-    .select(`
-      id,
-      title,
-      type,
-      updated_at,
-      department_id,
-      departments ( display_name )
-    `)
-    .eq('status', 'published')
-    .order('title')
+  // Group view: a specific document type for a specific department
+  if (dept && type) {
+    const deptObj = departments.find((d) => d.id === dept)
+    const deptName = deptObj?.name ?? ''
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const documents: DocumentSummary[] = (rawDocs ?? []).map((doc: any) => ({
-    id: doc.id,
-    title: doc.title,
-    document_type: doc.type,
-    updated_at: doc.updated_at,
-    department_id: doc.department_id,
-    department_name: doc.departments?.display_name ?? '',
-  }))
+    // Fetch full content for these documents
+    const supabase = await createSupabaseServerClient()
+    const { data: rawDocs } = await supabase
+      .from('documents')
+      .select('id, title, type, updated_at, department_id, content_md, content_html')
+      .eq('status', 'published')
+      .eq('department_id', dept)
+      .eq('type', type)
+      .order('title')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const deptList = (departments ?? []).map((d: any) => ({
-    id: d.id,
-    name: d.display_name,
-  }))
+    const groupDocs = (rawDocs ?? []).map((doc: any) => ({
+      id: doc.id,
+      title: doc.title,
+      document_type: doc.type,
+      updated_at: doc.updated_at,
+      content: doc.content_md ?? '',
+      content_html: doc.content_html ?? null,
+    }))
+
+    return (
+      <div className="px-8 py-8 max-w-5xl mx-auto">
+        <DocumentGroupView
+          documents={groupDocs}
+          deptName={deptName}
+          type={type}
+        />
+      </div>
+    )
+  }
+
+  // Dept overview: filter docs but show full homepage card for that dept
+  if (dept) {
+    const deptDocs = documents.filter((d) => d.department_id === dept)
+    const deptObj = departments.find((d) => d.id === dept)
+    const filteredDepts = deptObj ? [deptObj] : []
+
+    return (
+      <div className="px-8 py-8 max-w-5xl mx-auto">
+        <div className="mb-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#C41E2A] mb-1">
+            Направление
+          </p>
+          <h1 className="text-xl font-semibold text-[#1A1A1A]">{deptObj?.name}</h1>
+        </div>
+        <HomepageGrid departments={filteredDepts} documents={deptDocs} />
+      </div>
+    )
+  }
+
+  // Homepage: all department cards
+  const deptIds = new Set(documents.map((d) => d.department_id))
+  const activeDepts = departments.filter((d) => deptIds.has(d.id))
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      {/* Page header */}
-      <div className="mb-10 border-b border-gray-200 pb-8">
-        <h1 className="font-serif text-4xl font-bold text-gray-900 tracking-tight">
-          Документи
-        </h1>
-        <p className="mt-2 text-base text-gray-500">
+    <div className="px-8 py-8 max-w-5xl mx-auto">
+      <div className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#C41E2A] mb-1">
+          Вътрешна документация
+        </p>
+        <h1 className="text-xl font-semibold text-[#1A1A1A]">Документи и процеси</h1>
+        <p className="mt-1 text-sm text-[#6B6660]">
           Процеси, форми и шаблони на Зографа
         </p>
-
-        {/* Stats row */}
-        <div className="mt-6 flex gap-6">
-          <div className="text-center">
-            <span className="block text-2xl font-bold text-indigo-600">{documents.length}</span>
-            <span className="text-xs text-gray-400 uppercase tracking-wide">Документа</span>
-          </div>
-          <div className="text-center">
-            <span className="block text-2xl font-bold text-indigo-600">{deptList.length}</span>
-            <span className="text-xs text-gray-400 uppercase tracking-wide">Отдела</span>
-          </div>
-        </div>
       </div>
 
-      <DocumentLibrary
-        departments={deptList}
-        initialDocuments={documents}
-      />
-    </main>
+      <HomepageGrid departments={activeDepts} documents={documents} />
+    </div>
   )
 }

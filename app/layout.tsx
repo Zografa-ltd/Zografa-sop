@@ -1,16 +1,11 @@
 import type { Metadata } from 'next'
-import { Inter, Lora } from 'next/font/google'
+import { IBM_Plex_Sans } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({
+const ibmPlexSans = IBM_Plex_Sans({
   variable: '--font-sans',
   subsets: ['latin', 'cyrillic'],
-  display: 'swap',
-})
-
-const lora = Lora({
-  variable: '--font-serif',
-  subsets: ['latin', 'cyrillic'],
+  weight: ['300', '400', '500', '600', '700'],
   display: 'swap',
 })
 
@@ -30,9 +25,9 @@ export default function RootLayout({
   return (
     <html
       lang="bg"
-      className={`${inter.variable} ${lora.variable} h-full antialiased`}
+      className={`${ibmPlexSans.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col font-sans antialiased">{children}</body>
     </html>
   )
 }

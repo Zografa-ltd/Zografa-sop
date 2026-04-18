@@ -39,3 +39,10 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# Local data folders
+Old/
+supabase/.temp/
+
+# Claude settings
+.claude/
