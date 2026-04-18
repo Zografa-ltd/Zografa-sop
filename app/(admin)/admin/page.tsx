@@ -33,7 +33,14 @@ export default async function AdminPage() {
               className="px-4 py-2 bg-[#C41E2A] text-white text-sm font-medium rounded-lg
                 hover:bg-[#A5181F] transition-colors"
             >
-              + Качи формуляр
+              + Качи документ
+            </Link>
+            <Link
+              href="/admin/product-models"
+              className="px-4 py-2 border border-[#E4E1DB] text-sm text-[#6B6660] rounded-lg
+                hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors"
+            >
+              Продуктови модели
             </Link>
             <Link
               href="/"

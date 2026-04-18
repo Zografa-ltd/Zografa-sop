@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 interface AdminDoc {
   id: string
@@ -84,14 +85,23 @@ export function DocumentTable({ documents }: { documents: AdminDoc[] }) {
                 {new Date(doc.updated_at).toLocaleDateString('bg-BG', { day: 'numeric', month: 'short', year: 'numeric' })}
               </td>
               <td className="px-4 py-3">
-                <button
-                  onClick={() => toggleStatus(doc.id, doc.status)}
-                  disabled={loading === doc.id}
-                  className="text-xs px-2.5 py-1 rounded border border-[#E4E1DB] text-[#6B6660]
-                    hover:border-[#C41E2A] hover:text-[#C41E2A] transition-colors disabled:opacity-40"
-                >
-                  {loading === doc.id ? '...' : doc.status === 'published' ? 'Скрий' : 'Публикувай'}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => toggleStatus(doc.id, doc.status)}
+                    disabled={loading === doc.id}
+                    className="text-xs px-2.5 py-1 rounded border border-[#E4E1DB] text-[#6B6660]
+                      hover:border-[#C41E2A] hover:text-[#C41E2A] transition-colors disabled:opacity-40"
+                  >
+                    {loading === doc.id ? '...' : doc.status === 'published' ? 'Скрий' : 'Публикувай'}
+                  </button>
+                  <Link
+                    href={`/admin/documents/${doc.id}`}
+                    className="text-xs px-2.5 py-1 rounded border border-[#E4E1DB] text-[#6B6660]
+                      hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors"
+                  >
+                    Редактирай
+                  </Link>
+                </div>
               </td>
             </tr>
           ))}
